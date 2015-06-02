@@ -37,11 +37,150 @@ public class Utils {
     private final static String sAcronym_Web_Service_URL =
             "http://www.nactem.ac.uk/software/acromine/dictionary.py?sf=";
 
+    private final static String sWeather_Web_Service_URL =
+            "api.openweathermap.org/data/2.5/weather?q=";
+
     public static WeatherData fetchWeather(String address) {
         //TODO
+        try {
+            // Append the location to create the full URL.
+            final URL url =
+                    new URL(sWeather_Web_Service_URL
+                            + address);
+
+            // Opens a connection to the Acronym Service.
+            HttpURLConnection urlConnection =
+                    (HttpURLConnection) url.openConnection();
+
+            urlConnection.getInputStream()
+            // Sends the GET request and reads the Json results.
+            try (InputStream in =
+                         new BufferedInputStream(urlConnection.getInputStream())) {
+                // Create the parser.
+                final AcronymJSONParser parser =
+                        new AcronymJSONParser();
+
+                // Parse the Json results and create JsonAcronym data
+                // objects.
+                jsonAcronyms = parser.parseJsonStream(in);
+            } finally {
+                urlConnection.disconnect();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
+    public void testTemp() {
+        fetchWeather("Nashville,TN");
+    }
+
+    private final static String sWeather_Web_Service_URL =
+            "http://api.openweathermap.org/data/2.5/weather?q=";
+
+    public WeatherApp fetchWeather(String address) {
+        try {
+            // Append the location to create the full URL.
+            final URL url =
+                    new URL(sWeather_Web_Service_URL
+                            + address);
+            // Opens a connection to the Acronym Service.
+            HttpURLConnection urlConnection =
+                    (HttpURLConnection) url.openConnection();
+
+            // Sends the GET request and reads the Json results.
+            InputStream in =
+                    new BufferedInputStream(urlConnection.getInputStream());
+            JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+            WeatherApp weatherApp = readWeatherApp(reader);
+            return weatherApp;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public WeatherApp readWeatherApp(JsonReader reader) throws IOException {
+        WeatherApp weatherApp = new WeatherApp();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("id")) {
+                weatherApp.setId(reader.nextInt());
+            } else if (name.equals("name")) {
+                weatherApp.setName(reader.nextString());
+            } else if (name.equals("main")) {
+                weatherApp.setMain(readMain(reader));
+            } else if (name.equals("weather")) {
+                weatherApp.setWeather(readWeatherArray(reader));
+            } else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return weatherApp;
+    }
+
+    /**
+     * https://blocksnap.me/api/lookup.php?phone=REWARDS&mnc=03&mcc=515&key=99db7e17cd68aa1c402e5858bcb8b666
+     */
+
+    public List<Weather> readWeatherArray(JsonReader reader) throws IOException {
+        List<Weather> weatherList = new ArrayList();
+        reader.beginArray();
+        while (reader.hasNext()) {
+            weatherList.add(readWeather(reader));
+        }
+        reader.endArray();
+        return weatherList;
+    }
+
+    public static Weather readWeather(JsonReader reader) throws IOException {
+        Weather weather = new Weather();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("id")) {
+                weather.setId(reader.nextInt());
+            } else if (name.equals("main")) {
+                weather.setMain(reader.nextString());
+            } else if (name.equals("description")) {
+                weather.setDescription(reader.nextString());
+            } else if (name.equals("icon")) {
+                weather.setIcon(reader.nextString());
+            } else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return weather;
+    }
+
+    public static Main readMain(JsonReader reader) throws IOException {
+        Main main = new Main();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("temp")) {
+                main.setTemp(reader.nextDouble());
+            } else if (name.equals("pressure")) {
+                main.setPressure(reader.nextInt());
+            } else if (name.equals("humidity")) {
+                main.setHumidity(reader.nextInt());
+            } else if (name.equals("temp_min")) {
+                main.setTempMin(reader.nextDouble());
+            } else if (name.equals("temp_max")) {
+                main.setTempMax(reader.nextDouble());
+            } else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        return main;
+    }
     /**
      * Obtain the Acronym information.
      *
