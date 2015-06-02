@@ -1,6 +1,7 @@
 package com.lopeemano.weatherapp.operations;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
@@ -19,7 +20,6 @@ import com.lopeemano.weatherapp.util.GenericServiceConnection;
 import com.lopeemano.weatherapp.util.Utils;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * This class defines all the acronym-related operations.
@@ -46,15 +46,15 @@ public class WeatherOpsImpl implements WeatherOps {
     protected WeakReference<EditText> mEditText;
 
     /**
-     * List of results to display (if any).
+     * Result to display (if any).
      */
-    protected List<WeatherData> mResults;
+    protected WeatherData mResult;
 
     /**
      * A custom ArrayAdapter used to display the list of AcronymData
      * objects.
      */
-    protected WeakReference<AcronymDataArrayAdapter> mAdapter;
+//    protected WeakReference<AcronymDataArrayAdapter> mAdapter;
 
     /**
      * This GenericServiceConnection is used to receive results after
@@ -162,15 +162,15 @@ public class WeatherOpsImpl implements WeatherOps {
 
         // Create a local instance of our custom Adapter for our
         // ListView.
-        mAdapter = new WeakReference<>
-                (new AcronymDataArrayAdapter(mActivity.get()));
+//        mAdapter = new WeakReference<>
+//                (new AcronymDataArrayAdapter(mActivity.get()));
 
         // Set the adapter to the ListView.
-        mListView.get().setAdapter(mAdapter.get());
+//        mListView.get().setAdapter(mAdapter.get());
 
         // Display results if any (due to runtime configuration change).
-        if (mResults != null)
-            displayResults(mResults);
+        if (mResult != null)
+            displayResults(mResult);
     }
 
     /**
@@ -290,10 +290,10 @@ public class WeatherOpsImpl implements WeatherOps {
      * the "Look Up Sync" button.
      */
     public void expandAcronymSync(View v) {
-        final IFetchWeatherCall acronymCall =
+        final IFetchWeatherCall fetchWeatherCall =
                 mServiceConnectionSync.getInterface();
 
-        if (acronymCall != null) {
+        if (fetchWeatherCall != null) {
             // Get the acronym entered by the user.
             final String acronym =
                     mEditText.get().getText().toString();
@@ -303,7 +303,7 @@ public class WeatherOpsImpl implements WeatherOps {
             // Use an anonymous AsyncTask to download the Acronym data
             // in a separate thread and then display any results in
             // the UI thread.
-            new AsyncTask<String, Void, List<AcronymData>>() {
+            new AsyncTask<String, Void, WeatherData>() {
                 /**
                  * Acronym we're trying to expand.
                  */
@@ -314,10 +314,10 @@ public class WeatherOpsImpl implements WeatherOps {
                  * synchronous two-way method call, which runs in a
                  * background thread to avoid blocking the UI thread.
                  */
-                protected List<AcronymData> doInBackground(String... acronyms) {
+                protected WeatherData doInBackground(String... address) {
                     try {
-                        mAcronym = acronyms[0];
-                        return acronymCall.expandAcronym(mAcronym);
+                        mAcronym = address[0];
+                        return fetchWeatherCall.fetchWeather(mAcronym);
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -327,9 +327,9 @@ public class WeatherOpsImpl implements WeatherOps {
                 /**
                  * Display the results in the UI Thread.
                  */
-                protected void onPostExecute(List<AcronymData> acronymDataList) {
-                    if (acronymDataList.size() > 0)
-                        displayResults(acronymDataList);
+                protected void onPostExecute(WeatherData weatherData) {
+                    if (weatherData != null)
+                        displayResults(weatherData);
                     else
                         Utils.showToast(mActivity.get(),
                                 "no expansions for "
@@ -347,15 +347,15 @@ public class WeatherOpsImpl implements WeatherOps {
     /**
      * Display the results to the screen.
      *
-     * @param results List of Results to be displayed.
+     * @param result List of Results to be displayed.
      */
-    private void displayResults(List<AcronymData> results) {
-        mResults = results;
+    private void displayResults(WeatherData result) {
+        mResult = result;
 
         // Set/change data set.
-        mAdapter.get().clear();
-        mAdapter.get().addAll(mResults);
-        mAdapter.get().notifyDataSetChanged();
+//        mAdapter.get().clear();
+//        mAdapter.get().addAll(mResult);
+//        mAdapter.get().notifyDataSetChanged();
     }
 
     /**
@@ -364,8 +364,8 @@ public class WeatherOpsImpl implements WeatherOps {
     private void resetDisplay() {
         Utils.hideKeyboard(mActivity.get(),
                 mEditText.get().getWindowToken());
-        mResults = null;
-        mAdapter.get().clear();
-        mAdapter.get().notifyDataSetChanged();
+        mResult = null;
+//        mAdapter.get().clear();
+//        mAdapter.get().notifyDataSetChanged();
     }
 }
