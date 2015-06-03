@@ -72,7 +72,7 @@ public class WeatherServiceSync extends LifecycleLoggingService {
 
                     // Call the Acronym Web service to get the list of
                     // possible expansions of the designated acronym.
-                    return Utils.fetchWeather(address);
+                    return Utils.toWeatherData(Utils.fetchWeather(address));
                 }
             };
 }

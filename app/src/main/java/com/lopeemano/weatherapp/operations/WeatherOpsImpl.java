@@ -1,19 +1,21 @@
 package com.lopeemano.weatherapp.operations;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ListView;
 
 import com.lopeemano.weatherapp.IFetchWeatherCall;
 import com.lopeemano.weatherapp.IFetchWeatherRequest;
 import com.lopeemano.weatherapp.IWeatherResult;
+import com.lopeemano.weatherapp.R;
 import com.lopeemano.weatherapp.WeatherData;
 import com.lopeemano.weatherapp.activities.MainActivity;
+import com.lopeemano.weatherapp.activities.ShowWeatherActivity;
 import com.lopeemano.weatherapp.services.WeatherServiceAsync;
 import com.lopeemano.weatherapp.services.WeatherServiceSync;
 import com.lopeemano.weatherapp.util.GenericServiceConnection;
@@ -36,11 +38,6 @@ public class WeatherOpsImpl implements WeatherOps {
     protected WeakReference<MainActivity> mActivity;
 
     /**
-     * The ListView that will display the results to the user.
-     */
-    protected WeakReference<ListView> mListView;
-
-    /**
      * Address entered by the user.
      */
     protected WeakReference<EditText> mEditText;
@@ -49,12 +46,6 @@ public class WeatherOpsImpl implements WeatherOps {
      * Result to display (if any).
      */
     protected WeatherData mResult;
-
-    /**
-     * A custom ArrayAdapter used to display the list of AcronymData
-     * objects.
-     */
-//    protected WeakReference<AcronymDataArrayAdapter> mAdapter;
 
     /**
      * This GenericServiceConnection is used to receive results after
@@ -149,24 +140,12 @@ public class WeatherOpsImpl implements WeatherOps {
      */
     private void initializeViewFields() {
         // Get references to the UI components.
-        mActivity.get().setContentView(R.layout.main_activity);
+        mActivity.get().setContentView(R.layout.activity_main);
 
         // Store the EditText that holds the urls entered by the user
         // (if any).
         mEditText = new WeakReference<>
                 ((EditText) mActivity.get().findViewById(R.id.editText1));
-
-        // Store the ListView for displaying the results entered.
-        mListView = new WeakReference<>
-                ((ListView) mActivity.get().findViewById(R.id.listView1));
-
-        // Create a local instance of our custom Adapter for our
-        // ListView.
-//        mAdapter = new WeakReference<>
-//                (new AcronymDataArrayAdapter(mActivity.get()));
-
-        // Set the adapter to the ListView.
-//        mListView.get().setAdapter(mAdapter.get());
 
         // Display results if any (due to runtime configuration change).
         if (mResult != null)
@@ -200,13 +179,13 @@ public class WeatherOpsImpl implements WeatherOps {
         // activity to the AcronymService* if they aren't already
         // bound.
         if (mServiceConnectionSync.getInterface() == null)
-            mActivity.get().getApplicationContext().bindService
+            mActivity.get().bindService
                     (WeatherServiceSync.makeIntent(mActivity.get()),
                             mServiceConnectionSync,
                             Context.BIND_AUTO_CREATE);
 
         if (mServiceConnectionAsync.getInterface() == null)
-            mActivity.get().getApplicationContext().bindService
+            mActivity.get().bindService
                     (WeatherServiceAsync.makeIntent(mActivity.get()),
                             mServiceConnectionAsync,
                             Context.BIND_AUTO_CREATE);
@@ -255,7 +234,8 @@ public class WeatherOpsImpl implements WeatherOps {
      * Initiate the asynchronous acronym lookup when the user presses
      * the "Look Up Async" button.
      */
-    public void fetchhWeatherAsync(View v) {
+    @Override
+    public void fetchWeatherAsync(View v) {
         final IFetchWeatherRequest weatherRequest =
                 mServiceConnectionAsync.getInterface();
 
@@ -289,15 +269,15 @@ public class WeatherOpsImpl implements WeatherOps {
      * Initiate the synchronous acronym lookup when the user presses
      * the "Look Up Sync" button.
      */
-    public void expandAcronymSync(View v) {
+    @Override
+    public void fetchWeatherSync(View v) {
         final IFetchWeatherCall fetchWeatherCall =
                 mServiceConnectionSync.getInterface();
 
         if (fetchWeatherCall != null) {
             // Get the acronym entered by the user.
-            final String acronym =
+            final String address =
                     mEditText.get().getText().toString();
-
             resetDisplay();
 
             // Use an anonymous AsyncTask to download the Acronym data
@@ -338,7 +318,7 @@ public class WeatherOpsImpl implements WeatherOps {
                 }
                 // Execute the AsyncTask to expand the acronym without
                 // blocking the caller.
-            }.execute(acronym);
+            }.execute(address);
         } else {
             Log.d(TAG, "mAcronymCall was null.");
         }
@@ -350,12 +330,9 @@ public class WeatherOpsImpl implements WeatherOps {
      * @param result List of Results to be displayed.
      */
     private void displayResults(WeatherData result) {
-        mResult = result;
-
-        // Set/change data set.
-//        mAdapter.get().clear();
-//        mAdapter.get().addAll(mResult);
-//        mAdapter.get().notifyDataSetChanged();
+        Intent intent = new Intent(mActivity.get(), ShowWeatherActivity.class);
+        intent.putExtra(ShowWeatherActivity.WEATHER_DATA, result);
+        mActivity.get().startActivity(intent);
     }
 
     /**
@@ -365,7 +342,5 @@ public class WeatherOpsImpl implements WeatherOps {
         Utils.hideKeyboard(mActivity.get(),
                 mEditText.get().getWindowToken());
         mResult = null;
-//        mAdapter.get().clear();
-//        mAdapter.get().notifyDataSetChanged();
     }
 }

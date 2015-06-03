@@ -1,24 +1,32 @@
 package com.lopeemano.weatherapp.util;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.os.IBinder;
+import android.util.JsonReader;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.lopeemano.weatherapp.WeatherData;
+import com.lopeemano.weatherapp.models.Main;
+import com.lopeemano.weatherapp.models.Weather;
+import com.lopeemano.weatherapp.models.WeatherApp;
+import com.lopeemano.weatherapp.models.Wind;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
-import vandy.mooc.aidl.AcronymData;
-import vandy.mooc.jsonacronym.AcronymJSONParser;
-import vandy.mooc.jsonacronym.JsonAcronym;
 
 /**
  * @class AcronymDownloadUtils
@@ -34,52 +42,28 @@ public class Utils {
     /**
      * URL to the Acronym web service.
      */
-    private final static String sAcronym_Web_Service_URL =
-            "http://www.nactem.ac.uk/software/acromine/dictionary.py?sf=";
-
-    private final static String sWeather_Web_Service_URL =
-            "api.openweathermap.org/data/2.5/weather?q=";
-
-    public static WeatherData fetchWeather(String address) {
-        //TODO
-        try {
-            // Append the location to create the full URL.
-            final URL url =
-                    new URL(sWeather_Web_Service_URL
-                            + address);
-
-            // Opens a connection to the Acronym Service.
-            HttpURLConnection urlConnection =
-                    (HttpURLConnection) url.openConnection();
-
-            urlConnection.getInputStream()
-            // Sends the GET request and reads the Json results.
-            try (InputStream in =
-                         new BufferedInputStream(urlConnection.getInputStream())) {
-                // Create the parser.
-                final AcronymJSONParser parser =
-                        new AcronymJSONParser();
-
-                // Parse the Json results and create JsonAcronym data
-                // objects.
-                jsonAcronyms = parser.parseJsonStream(in);
-            } finally {
-                urlConnection.disconnect();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void testTemp() {
-        fetchWeather("Nashville,TN");
-    }
 
     private final static String sWeather_Web_Service_URL =
             "http://api.openweathermap.org/data/2.5/weather?q=";
 
-    public WeatherApp fetchWeather(String address) {
+    public static WeatherData toWeatherData(WeatherApp weatherApp) {
+        Weather weather = null;
+        WeatherData weatherData = null;
+        if (weatherApp.getWeatherList().size() > 0) {
+            weather = weatherApp.getWeatherList().get(0);
+            weatherData = new WeatherData(weatherApp.getName(),
+                    weatherApp.getMain().getTemp(),
+                    weather.getDescription(),
+                    weatherApp.getMain().getHumidity(),
+                    weatherApp.getMain().getPressure(),
+                    weatherApp.getWind().getSpeed()
+            );
+        }
+        return weatherData;
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static WeatherApp fetchWeather(String address) {
         try {
             // Append the location to create the full URL.
             final URL url =
@@ -103,7 +87,8 @@ public class Utils {
         return null;
     }
 
-    public WeatherApp readWeatherApp(JsonReader reader) throws IOException {
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static WeatherApp readWeatherApp(JsonReader reader) throws IOException {
         WeatherApp weatherApp = new WeatherApp();
         reader.beginObject();
         while (reader.hasNext()) {
@@ -116,6 +101,8 @@ public class Utils {
                 weatherApp.setMain(readMain(reader));
             } else if (name.equals("weather")) {
                 weatherApp.setWeather(readWeatherArray(reader));
+            } else if (name.equals("wind")) {
+                weatherApp.setWind(readWind(reader));
             } else {
                 reader.skipValue();
             }
@@ -128,7 +115,8 @@ public class Utils {
      * https://blocksnap.me/api/lookup.php?phone=REWARDS&mnc=03&mcc=515&key=99db7e17cd68aa1c402e5858bcb8b666
      */
 
-    public List<Weather> readWeatherArray(JsonReader reader) throws IOException {
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static List<Weather> readWeatherArray(JsonReader reader) throws IOException {
         List<Weather> weatherList = new ArrayList();
         reader.beginArray();
         while (reader.hasNext()) {
@@ -138,6 +126,7 @@ public class Utils {
         return weatherList;
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static Weather readWeather(JsonReader reader) throws IOException {
         Weather weather = new Weather();
         reader.beginObject();
@@ -159,6 +148,7 @@ public class Utils {
         return weather;
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static Main readMain(JsonReader reader) throws IOException {
         Main main = new Main();
         reader.beginObject();
@@ -181,65 +171,30 @@ public class Utils {
         reader.endObject();
         return main;
     }
-    /**
-     * Obtain the Acronym information.
-     *
-     * @return The information that responds to your current acronym search.
-     */
-    public static List<AcronymData> getResults(final String acronym) {
-        // Create a List that will return the AcronymData obtained
-        // from the Acronym Service web service.
-        final List<AcronymData> returnList =
-                new ArrayList<AcronymData>();
 
-        // A List of JsonAcronym objects.
-        List<JsonAcronym> jsonAcronyms = null;
-
-        try {
-            // Append the location to create the full URL.
-            final URL url =
-                    new URL(sAcronym_Web_Service_URL
-                            + acronym);
-
-            // Opens a connection to the Acronym Service.
-            HttpURLConnection urlConnection =
-                    (HttpURLConnection) url.openConnection();
-
-            // Sends the GET request and reads the Json results.
-            try (InputStream in =
-                         new BufferedInputStream(urlConnection.getInputStream())) {
-                // Create the parser.
-                final AcronymJSONParser parser =
-                        new AcronymJSONParser();
-
-                // Parse the Json results and create JsonAcronym data
-                // objects.
-                jsonAcronyms = parser.parseJsonStream(in);
-            } finally {
-                urlConnection.disconnect();
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static Wind readWind(JsonReader reader) throws IOException {
+        Wind wind = new Wind();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            if (name.equals("speed")) {
+                wind.setSpeed(reader.nextDouble());
+            } else if (name.equals("deg")) {
+                wind.setDeg(reader.nextInt());
+            } else {
+                reader.skipValue();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
-        // See if we parsed any valid data.
-        if (jsonAcronyms != null && jsonAcronyms.size() > 0) {
-            // Convert the JsonAcronym data objects to our AcronymData
-            // object, which can be passed between processes.
-            for (JsonAcronym jsonAcronym : jsonAcronyms)
-                returnList.add(new AcronymData(jsonAcronym.getLongForm(),
-                        jsonAcronym.getFreq(),
-                        jsonAcronym.getSince()));
-            // Return the List of AcronymData.
-            return returnList;
-        } else
-            return null;
+        reader.endObject();
+        return wind;
     }
 
     /**
      * This method is used to hide a keyboard after a user has
      * finished typing the url.
      */
+    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     public static void hideKeyboard(Activity activity,
                                     IBinder windowToken) {
         InputMethodManager mgr =
@@ -247,6 +202,21 @@ public class Utils {
                         (Context.INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(windowToken,
                 0);
+    }
+
+    public static double toCelcius(double kelvin) {
+        return kelvin - 273.15;
+    }
+
+    public static double toFahrenheit(double celcius) {
+        return (celcius * 9) / 5 + 32;
+    }
+
+    public static String getDateStringToday() {
+        DateFormat dateFormat = new SimpleDateFormat("dd MMMM");
+        //get current date time with Date()
+        Date date = new Date();
+        return dateFormat.format(date);
     }
 
     /**

@@ -1,3 +1,5 @@
+package com.lopeemano.weatherapp.models;
+
 import java.util.HashMap;
 import java.util.Map;
 

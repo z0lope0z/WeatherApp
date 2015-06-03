@@ -42,38 +42,50 @@ public class WeatherData implements Parcelable {
     /**
      * The long form of the acronym (spelled out version).
      */
-    public String mLongForm;
+    public String name;
+
+    public double tempKelvin;
+
+    public String description;
+
+    public int humidity;
+
+    public int pressure;
+
+    public double windSpeed;
 
     /**
      * The relative frequency of usage in print, of this meaning of
      * the acronym.
      */
-    public int mFreq;
+//    public int mFreq;
 
     /**
      * The year the acronym was added to this database of acronyms, or
      * was originally termed.
      */
-    public int mSince;
+//    public int msince;
 
     /**
      * Private constructor provided for the CREATOR interface, which
      * is used to de-marshal an AcronymData from the Parcel of data.
      */
     private WeatherData(Parcel in) {
-        mLongForm = in.readString();
-        mFreq = in.readInt();
-        mSince = in.readInt();
+        name = in.readString();
+        tempKelvin = in.readDouble();
+        description = in.readString();
+        humidity = in.readInt();
+        pressure = in.readInt();
+        windSpeed = in.readDouble();
     }
 
-    /**
-     * Constructor that initializes an AcronymData object from
-     * its parameters.
-     */
-    public WeatherData(String longForm, int freq, int since) {
-        mLongForm = longForm;
-        mFreq = freq;
-        mSince = since;
+    public WeatherData(String name, double tempKelvin, String description, int humidity, int pressure, double windSpeed) {
+        this.name = name;
+        this.tempKelvin = tempKelvin;
+        this.description = description;
+        this.humidity = humidity;
+        this.pressure = pressure;
+        this.windSpeed = windSpeed;
     }
 
     /**
@@ -81,12 +93,18 @@ public class WeatherData implements Parcelable {
      */
     @Override
     public String toString() {
-        return "AcronymData [mLongForm="
-                + mLongForm
-                + ", mFreq="
-                + mFreq
-                + ", mSince="
-                + mSince
+        return "AcronymData [name="
+                + name
+                + ", tempKelvin="
+                + tempKelvin
+                + ", description="
+                + description
+                + ", humidity="
+                + humidity
+                + ", pressure="
+                + pressure
+                + ", windSpeed="
+                + windSpeed
                 + "]";
     }
 
@@ -110,9 +128,12 @@ public class WeatherData implements Parcelable {
     public void writeToParcel(Parcel dest,
                               int flags) {
         // TODO Auto-generated method stub
-        dest.writeString(mLongForm);
-        dest.writeInt(mFreq);
-        dest.writeInt(mSince);
+        dest.writeString(name);
+        dest.writeDouble(tempKelvin);
+        dest.writeString(description);
+        dest.writeInt(humidity);
+        dest.writeInt(pressure);
+        dest.writeDouble(windSpeed);
     }
 
     /**

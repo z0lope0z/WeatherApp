@@ -1,3 +1,5 @@
+package com.lopeemano.weatherapp.models;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,15 +16,15 @@ public class WeatherApp {
     private String base;
     private Main main;
     private Integer visibility;
-    //    private Wind wind;
-//    private Clouds clouds;
+    private Wind wind;
+    //    private Clouds clouds;
     private Integer dt;
     private Integer id;
     private String name;
     private Integer cod;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public List<Weather> getWeather() {
+    public List<Weather> getWeatherList() {
         return weather;
     }
 
@@ -84,6 +86,14 @@ public class WeatherApp {
 
     public void setCod(Integer cod) {
         this.cod = cod;
+    }
+
+    public Wind getWind() {
+        return wind;
+    }
+
+    public void setWind(Wind wind) {
+        this.wind = wind;
     }
 
     public void setAdditionalProperties(Map<String, Object> additionalProperties) {

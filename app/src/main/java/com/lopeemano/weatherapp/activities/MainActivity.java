@@ -11,7 +11,6 @@ import com.lopeemano.weatherapp.operations.WeatherOps;
 import com.lopeemano.weatherapp.operations.WeatherOpsImpl;
 import com.lopeemano.weatherapp.util.RetainedFragmentManager;
 
-
 public class MainActivity extends LifecycleLoggingActivity {
     public static final String ACRONYM_OPS_STATE = "ACRONYM_OPS_STATE";
     /**
