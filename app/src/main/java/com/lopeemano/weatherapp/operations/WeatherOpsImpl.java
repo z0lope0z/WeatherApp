@@ -287,7 +287,7 @@ public class WeatherOpsImpl implements WeatherOps {
                 /**
                  * Acronym we're trying to expand.
                  */
-                private String mAcronym;
+                private String address;
 
                 /**
                  * Retrieve the expanded acronym results via a
@@ -296,8 +296,8 @@ public class WeatherOpsImpl implements WeatherOps {
                  */
                 protected WeatherData doInBackground(String... address) {
                     try {
-                        mAcronym = address[0];
-                        return fetchWeatherCall.fetchWeather(mAcronym);
+                        this.address = address[0];
+                        return fetchWeatherCall.fetchWeather(this.address);
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -312,8 +312,8 @@ public class WeatherOpsImpl implements WeatherOps {
                         displayResults(weatherData);
                     else
                         Utils.showToast(mActivity.get(),
-                                "no expansions for "
-                                        + mAcronym
+                                "no weather update for "
+                                        + address
                                         + " found");
                 }
                 // Execute the AsyncTask to expand the acronym without

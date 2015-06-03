@@ -22,8 +22,12 @@
             android:name=".activities.ShowWeatherActivity"
             android:label="@string/app_name" />
 
-        <service android:name="com.lopeemano.weatherapp.services.WeatherServiceAsync" />
-        <service android:name="com.lopeemano.weatherapp.services.WeatherServiceSync" />
+        <service
+            android:name="com.lopeemano.weatherapp.services.WeatherServiceAsync"
+            android:process=":remote1" />
+        <service
+            android:name="com.lopeemano.weatherapp.services.WeatherServiceSync"
+            android:process=":remote2" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
