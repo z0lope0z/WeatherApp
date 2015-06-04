@@ -3,6 +3,8 @@ package com.lopeemano.weatherapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 /**
  * This class is a Plain Old Java Object (POJO) used for data
  * transport within the Acronym app.  This POJO implements the
@@ -54,6 +56,8 @@ public class WeatherData implements Parcelable {
 
     public double windSpeed;
 
+    public long dateUpdated;
+
     /**
      * The relative frequency of usage in print, of this meaning of
      * the acronym.
@@ -79,13 +83,18 @@ public class WeatherData implements Parcelable {
         windSpeed = in.readDouble();
     }
 
-    public WeatherData(String name, double tempKelvin, String description, int humidity, double pressure, double windSpeed) {
+    public WeatherData(String name, double tempKelvin, String description, int humidity, double pressure, double windSpeed, Long dateUpdated) {
         this.name = name;
         this.tempKelvin = tempKelvin;
         this.description = description;
         this.humidity = humidity;
         this.pressure = pressure;
         this.windSpeed = windSpeed;
+        this.dateUpdated = dateUpdated;
+    }
+
+    public Boolean isExpired() {
+        return new Date(dateUpdated + 10000).before(new Date());
     }
 
     /**
@@ -134,6 +143,7 @@ public class WeatherData implements Parcelable {
         dest.writeInt(humidity);
         dest.writeDouble(pressure);
         dest.writeDouble(windSpeed);
+        dest.writeLong(dateUpdated);
     }
 
     /**

@@ -77,7 +77,7 @@ public class WeatherServiceAsync extends LifecycleLoggingService {
                     // Call the Acronym Web service to get the list of
                     // possible expansions of the designated acronym.
                     final WeatherData weather =
-                            Utils.toWeatherData(Utils.fetchWeather(address));
+                            Utils.fetchWeatherCacheAuto(address);
 
                     if (weather != null) {
                         // Invoke a one-way callback to send list of

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.JsonReader;
+import android.util.LruCache;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ public class Utils {
      */
     private final static String TAG = Utils.class.getCanonicalName();
 
+    private final static LruCache<String, WeatherData> weatherDataCache = new LruCache<>(100);
     /**
      * URL to the Acronym web service.
      */
@@ -56,14 +58,26 @@ public class Utils {
                     weather.getDescription(),
                     weatherApp.getMain().getHumidity(),
                     weatherApp.getMain().getPressure(),
-                    weatherApp.getWind().getSpeed()
+                    weatherApp.getWind().getSpeed(),
+                    new Date().getTime()
             );
+        }
+        return weatherData;
+    }
+
+    public static synchronized WeatherData fetchWeatherCacheAuto(String address) {
+        WeatherData weatherData = weatherDataCache.get(address);
+        if (weatherData == null || weatherData.isExpired()) {
+            weatherData = toWeatherData(fetchWeather(address));
+            weatherDataCache.put(address, weatherData);
+            return weatherData;
         }
         return weatherData;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static WeatherApp fetchWeather(String address) {
+
         try {
             // Append the location to create the full URL.
             final URL url =
