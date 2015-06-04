@@ -43,6 +43,8 @@ public class WeatherOpsImpl implements WeatherOps {
      */
     protected WeakReference<EditText> mEditText;
 
+    ProgressDialog barProgressDialog;
+
     /**
      * Result to display (if any).
      */
@@ -150,9 +152,15 @@ public class WeatherOpsImpl implements WeatherOps {
         mEditText = new WeakReference<>
                 ((EditText) mActivity.get().findViewById(R.id.editText1));
 
+        if (barProgressDialog != null) {
+            // recreate dialog
+            showDialog();
+        }
+
         // Display results if any (due to runtime configuration change).
         if (mResult != null)
             displayResults(mResult);
+
     }
 
     /**
@@ -339,8 +347,6 @@ public class WeatherOpsImpl implements WeatherOps {
         }
     }
 
-    ProgressDialog barProgressDialog;
-
     private void showDialog() {
         barProgressDialog = new ProgressDialog(mActivity.get());
         barProgressDialog.setMessage("Retrieving weather information ...");
@@ -352,7 +358,13 @@ public class WeatherOpsImpl implements WeatherOps {
     }
 
     private void hideDialog() {
-        barProgressDialog.hide();
+        try {
+            barProgressDialog.dismiss();
+            barProgressDialog = null;
+        } catch (Exception ex) {
+            // let it be
+        }
+
     }
 
     /**
