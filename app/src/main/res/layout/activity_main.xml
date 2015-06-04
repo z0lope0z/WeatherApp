@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:hint="Enter address here"
-        android:text="Nashville,TN" />
+        android:text="" />
 
     <Button
         android:layout_width="wrap_content"

@@ -50,7 +50,7 @@ public class WeatherData implements Parcelable {
 
     public int humidity;
 
-    public int pressure;
+    public double pressure;
 
     public double windSpeed;
 
@@ -79,7 +79,7 @@ public class WeatherData implements Parcelable {
         windSpeed = in.readDouble();
     }
 
-    public WeatherData(String name, double tempKelvin, String description, int humidity, int pressure, double windSpeed) {
+    public WeatherData(String name, double tempKelvin, String description, int humidity, double pressure, double windSpeed) {
         this.name = name;
         this.tempKelvin = tempKelvin;
         this.description = description;
@@ -132,7 +132,7 @@ public class WeatherData implements Parcelable {
         dest.writeDouble(tempKelvin);
         dest.writeString(description);
         dest.writeInt(humidity);
-        dest.writeInt(pressure);
+        dest.writeDouble(pressure);
         dest.writeDouble(windSpeed);
     }
 

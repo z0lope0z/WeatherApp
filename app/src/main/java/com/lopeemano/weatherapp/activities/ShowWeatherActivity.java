@@ -33,7 +33,7 @@ public class ShowWeatherActivity extends LifecycleLoggingActivity {
         txtDate.setText(Utils.getDateStringToday());
         txtTempCelsius.setText(tempCelsius + "°C");
         txtTempFahrenheit.setText(Utils.toFahrenheit(tempCelsius) + "°F");
-        txtDescription.setText(weatherData.description);
+        txtDescription.setText("Description: " + weatherData.description);
         txtHumidity.setText("Humidity: " + weatherData.humidity + "%");
         txtPressure.setText("Pressure: " + weatherData.pressure + " hPa");
         txtWind.setText("Wind: " + weatherData.windSpeed + " km/h NW");

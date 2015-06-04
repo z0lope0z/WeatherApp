@@ -157,7 +157,7 @@ public class Utils {
             if (name.equals("temp")) {
                 main.setTemp(reader.nextDouble());
             } else if (name.equals("pressure")) {
-                main.setPressure(reader.nextInt());
+                main.setPressure(reader.nextDouble());
             } else if (name.equals("humidity")) {
                 main.setHumidity(reader.nextInt());
             } else if (name.equals("temp_min")) {
@@ -181,7 +181,7 @@ public class Utils {
             if (name.equals("speed")) {
                 wind.setSpeed(reader.nextDouble());
             } else if (name.equals("deg")) {
-                wind.setDeg(reader.nextInt());
+                wind.setDeg(reader.nextDouble());
             } else {
                 reader.skipValue();
             }

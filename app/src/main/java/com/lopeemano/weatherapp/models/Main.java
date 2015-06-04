@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class Main {
     private Double temp;
-    private Integer pressure;
+    private Double pressure;
     private Integer humidity;
     private Double tempMin;
     private Double tempMax;
@@ -28,17 +28,11 @@ public class Main {
         this.temp = temp;
     }
 
-    /**
-     * @return The pressure
-     */
-    public Integer getPressure() {
+    public Double getPressure() {
         return pressure;
     }
 
-    /**
-     * @param pressure The pressure
-     */
-    public void setPressure(Integer pressure) {
+    public void setPressure(Double pressure) {
         this.pressure = pressure;
     }
 
