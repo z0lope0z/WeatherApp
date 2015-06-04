@@ -1,5 +1,6 @@
 package com.lopeemano.weatherapp.operations;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -94,6 +95,7 @@ public class WeatherOpsImpl implements WeatherOps {
                     // during a runtime configuration change.
                     mDisplayHandler.post(new Runnable() {
                         public void run() {
+                            hideDialog();
                             displayResults(weatherData);
                         }
                     });
@@ -115,6 +117,7 @@ public class WeatherOpsImpl implements WeatherOps {
                     // during a runtime configuration change.
                     mDisplayHandler.post(new Runnable() {
                         public void run() {
+                            hideDialog();
                             Utils.showToast(mActivity.get(),
                                     reason);
                         }
@@ -243,9 +246,13 @@ public class WeatherOpsImpl implements WeatherOps {
             // Get the acronym entered by the user.
             final String address =
                     mEditText.get().getText().toString();
-
+            if (address.equals("")) {
+                Utils.showToast(mActivity.get(),
+                        "Please input an address");
+                return;
+            }
             resetDisplay();
-
+            showDialog();
             try {
                 // Invoke a one-way AIDL call, which does not block
                 // the client.  The results are returned via the
@@ -260,6 +267,7 @@ public class WeatherOpsImpl implements WeatherOps {
                                 + e.getMessage());
             }
         } else {
+            hideDialog();
             Log.d(TAG,
                     "acronymRequest was null.");
         }
@@ -278,7 +286,13 @@ public class WeatherOpsImpl implements WeatherOps {
             // Get the acronym entered by the user.
             final String address =
                     mEditText.get().getText().toString();
+            if (address.equals("")) {
+                Utils.showToast(mActivity.get(),
+                        "Please input an address");
+                return;
+            }
             resetDisplay();
+            showDialog();
 
             // Use an anonymous AsyncTask to download the Acronym data
             // in a separate thread and then display any results in
@@ -308,9 +322,10 @@ public class WeatherOpsImpl implements WeatherOps {
                  * Display the results in the UI Thread.
                  */
                 protected void onPostExecute(WeatherData weatherData) {
-                    if (weatherData != null)
+                    hideDialog();
+                    if (weatherData != null) {
                         displayResults(weatherData);
-                    else
+                    } else
                         Utils.showToast(mActivity.get(),
                                 "no weather update for "
                                         + address
@@ -322,6 +337,22 @@ public class WeatherOpsImpl implements WeatherOps {
         } else {
             Log.d(TAG, "mAcronymCall was null.");
         }
+    }
+
+    ProgressDialog barProgressDialog;
+
+    private void showDialog() {
+        barProgressDialog = new ProgressDialog(mActivity.get());
+        barProgressDialog.setMessage("Retrieving weather information ...");
+        barProgressDialog.setIndeterminate(true);
+        barProgressDialog.setProgress(0);
+        barProgressDialog.setCancelable(false);
+        barProgressDialog.setMax(20);
+        barProgressDialog.show();
+    }
+
+    private void hideDialog() {
+        barProgressDialog.hide();
     }
 
     /**
